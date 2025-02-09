@@ -83,7 +83,6 @@ class WitMotion : public Component, public esphome::ble_client::BLEClientNode {
   sensor::Sensor *temperature_{nullptr};
 
   bool get_char_handles();
-  bool connected_{false};
   uint16_t status_handle_{0};
   uint16_t command_handle_{0};
 

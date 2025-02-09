@@ -14,19 +14,6 @@ namespace witmotion {
 
 namespace espbt = esphome::esp32_ble_tracker;
 
-//TODO remove
-/// Log the contents of a variable length packet as hex bytes
-void logIHexPacket(char* label, const uint8_t* buf, size_t length) {
-  char output[(length * 3) + 1];
-
-  size_t offset = 0;
-  for (size_t i = 0; i < length; ++i) {
-    offset += sprintf(output + offset, "%02X ", buf[i]);
-  }
-
-  ESP_LOGI(TAG, "%s (%d bytes): %s", label, length, output);
-}
-
 /* Component overrides */
 
 void WitMotion::dump_config() {
@@ -78,11 +65,8 @@ void WitMotion::setup() {
 void WitMotion::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if,
                                        esp_ble_gattc_cb_param_t *param) {
   switch (event) {
-    //TODO handle disconnect
-
     case ESP_GATTC_SEARCH_CMPL_EVT:
-      this->connected_ = this->get_char_handles() && this->configure_notifications();
-      if (this->connected_) {
+      if (this->get_char_handles() && this->configure_notifications()) {
         this->read_one_time_data(VERSION);
       }
       break;
@@ -403,10 +387,6 @@ void WitMotion::process_notification(esp_ble_gattc_cb_param_t *param) {
     value += sizeof(WitMotionData);
     value_len -= sizeof(WitMotionData);
   }
-
-  //TODO remove
-  uint8_t const *data2 = reinterpret_cast<uint8_t const *>(param->notify.value);
-  logIHexPacket("Notification:", data2, param->notify.value_len);
 }
 
 void WitMotion::read_one_time_data(RegisterNumber reg) {
