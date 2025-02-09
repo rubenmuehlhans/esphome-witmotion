@@ -299,6 +299,7 @@ union WitMotionCommand {
 //
 
 float BatteryVoltageToLevel(float voltage);
+float RateEnumToHertz(RateArg rate);
 
 }  // namespace witmotion
 }  // namespace esphome

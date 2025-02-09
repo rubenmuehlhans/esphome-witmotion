@@ -30,7 +30,34 @@ void logIHexPacket(char* label, const uint8_t* buf, size_t length) {
 /* Component overrides */
 
 void WitMotion::dump_config() {
-  //TODO see examples
+  ESP_LOGCONFIG(TAG, "WitMotion WT901BLECL5.0:");
+  ESP_LOGCONFIG(TAG, "  MAC address  : %s", this->parent_->address_str().c_str());
+  ESP_LOGCONFIG(TAG, "  Service UUID : %s", WITMOTION_SERVICE_UUID.to_string().c_str());
+  ESP_LOGCONFIG(TAG, "  Status UUID  : %s", WITMOTION_STATUS_UUID.to_string().c_str());
+  ESP_LOGCONFIG(TAG, "  Command UUID : %s", WITMOTION_COMMAND_UUID.to_string().c_str());
+  ESP_LOGCONFIG(TAG, "  Update rate  : %.1f Hz", RateEnumToHertz(this->update_rate_));
+  LOG_SENSOR("  ", "Acceleration", this->acceleration_);
+  LOG_SENSOR("  ", "Acceleration X", this->acceleration_x_);
+  LOG_SENSOR("  ", "Acceleration Y", this->acceleration_y_);
+  LOG_SENSOR("  ", "Acceleration Z", this->acceleration_z_);
+  LOG_SENSOR("  ", "Angular_velocity", this->angular_velocity_);
+  LOG_SENSOR("  ", "Angular_velocity X", this->angular_velocity_x_);
+  LOG_SENSOR("  ", "Angular_velocity Y", this->angular_velocity_y_);
+  LOG_SENSOR("  ", "Angular_velocity Z", this->angular_velocity_z_);
+  LOG_SENSOR("  ", "Roll_angle", this->roll_angle_);
+  LOG_SENSOR("  ", "Pitch_angle", this->pitch_angle_);
+  LOG_SENSOR("  ", "Yaw_angle", this->yaw_angle_);
+  LOG_SENSOR("  ", "Battery_level", this->battery_level_);
+  LOG_SENSOR("  ", "Battery_voltage", this->battery_voltage_);
+  LOG_SENSOR("  ", "Magnetic_flux_density", this->magnetic_flux_density_);
+  LOG_SENSOR("  ", "Magnetic_flux_density X", this->magnetic_flux_density_x_);
+  LOG_SENSOR("  ", "Magnetic_flux_density Y", this->magnetic_flux_density_y_);
+  LOG_SENSOR("  ", "Magnetic_flux_density Z", this->magnetic_flux_density_z_);
+  LOG_SENSOR("  ", "Quaternion 0", this->quaternion_0_);
+  LOG_SENSOR("  ", "Quaternion 1", this->quaternion_1_);
+  LOG_SENSOR("  ", "Quaternion 2", this->quaternion_2_);
+  LOG_SENSOR("  ", "Quaternion 3", this->quaternion_3_);
+  LOG_SENSOR("  ", "Temperature", this->temperature_);
 }
 
 void WitMotion::loop() {

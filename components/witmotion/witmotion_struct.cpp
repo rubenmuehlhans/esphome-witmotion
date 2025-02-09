@@ -91,17 +91,65 @@ float BatteryVoltageToLevel(float voltage)
       { 3.93,  90.0 },
       { 3.97, 100.0 } }; // > 3.96 => >= 3.97
 
-  float result = 0.0;
+  float level = 0.0;
 
   for (int i = 0; i < sizeof(table)/sizeof(entry); i++) {
     if (voltage >= table[i].voltage ) {
-      result = table[i].level;
+      level = table[i].level;
     } else {
       break;
     }
   }
 
-  return result;
+  return level;
+}
+
+float RateEnumToHertz(RateArg rate) {
+  float hertz = 0.0;
+
+  switch (rate) {
+    case RATE_0_2HZ:
+      hertz = 0.2;
+      break;
+
+    case RATE_0_5HZ:
+      hertz = 0.5;
+      break;
+
+    case RATE_1HZ:
+      hertz = 1.0;
+      break;
+
+    case RATE_2HZ:
+      hertz = 2.0;
+      break;
+
+    case RATE_5HZ:
+      hertz = 5.0;
+      break;
+
+    case RATE_10HZ:
+      hertz = 10.0;
+      break;
+
+    case RATE_20HZ:
+      hertz = 20.0;
+      break;
+
+    case RATE_50HZ:
+      hertz = 50.0;
+      break;
+
+    case RATE_100HZ:
+      hertz = 100.0;
+      break;
+
+    case RATE_200HZ:
+      hertz = 200.0;
+      break;
+  }
+
+  return hertz;
 }
 
 }  // namespace witmotion
