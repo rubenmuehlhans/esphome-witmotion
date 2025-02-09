@@ -86,6 +86,16 @@ void WitMotion::set_update_rate(RateArg rate) {
   this->update_rate_ = rate;
 }
 
+void WitMotion::set_battery_level(sensor::Sensor *battery_level) {
+  this->battery_level_ = battery_level;
+  this->add_extra_data(BATTERY);
+}
+
+void WitMotion::set_battery_voltage(sensor::Sensor *battery_voltage) {
+  this->battery_voltage_ = battery_voltage;
+  this->add_extra_data(BATTERY);
+}
+
 void WitMotion::set_magnetic_flux_density(sensor::Sensor *magnetic_flux_density) {
   this->magnetic_flux_density_ = magnetic_flux_density;
   this->add_extra_data(HX);
@@ -190,6 +200,20 @@ void WitMotion::dispatch_acceleration() {
   }
 }
 
+void WitMotion::dispatch_angle() {
+  if (this->roll_angle_) {
+    this->roll_angle_->publish_state(this->roll_);
+  }
+
+  if (this->pitch_angle_) {
+    this->pitch_angle_->publish_state(this->pitch_);
+  }
+
+  if (this->yaw_angle_) {
+    this->yaw_angle_->publish_state(this->yaw_);
+  }
+}
+
 void WitMotion::dispatch_angular_velocity() {
   if (this->angular_velocity_x_) {
     this->angular_velocity_x_->publish_state(this->wx_);
@@ -209,18 +233,14 @@ void WitMotion::dispatch_angular_velocity() {
   }
 }
 
-void WitMotion::dispatch_angle() {
-  if (this->roll_angle_) {
-    this->roll_angle_->publish_state(this->roll_);
-  }
+void WitMotion::dispatch_battery() {
+    if (this->battery_level_) {
+      this->battery_level_->publish_state(BatteryVoltageToLevel(this->battery_volts_));
+    }
 
-  if (this->pitch_angle_) {
-    this->pitch_angle_->publish_state(this->pitch_);
-  }
-
-  if (this->yaw_angle_) {
-    this->yaw_angle_->publish_state(this->yaw_);
-  }
+    if (this->battery_voltage_) {
+      this->battery_voltage_->publish_state(this->battery_volts_);
+    }
 }
 
 void WitMotion::dispatch_magnetic_flux_density() {
@@ -295,6 +315,11 @@ void WitMotion::extract_data_and_dispatch(WitMotionData const *data) {
       case TEMP:
         data->temperature.decode(&this->temp_);
         this->dispatch_temperature();
+        break;
+
+      case BATTERY:
+        data->battery.decode(&this->battery_volts_);
+        this->dispatch_battery();
         break;
     }
   }

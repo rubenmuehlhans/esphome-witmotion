@@ -44,6 +44,8 @@ class WitMotion : public Component, public esphome::ble_client::BLEClientNode {
   void set_roll_angle(sensor::Sensor *roll_angle) { roll_angle_ = roll_angle; }
   void set_pitch_angle(sensor::Sensor *pitch_angle) { pitch_angle_ = pitch_angle; }
   void set_yaw_angle(sensor::Sensor *yaw_angle) { yaw_angle_ = yaw_angle; }
+  void set_battery_level(sensor::Sensor *battery_level);
+  void set_battery_voltage(sensor::Sensor *battery_voltage);
   void set_magnetic_flux_density(sensor::Sensor *magnetic_flux_density);
   void set_magnetic_flux_density_x(sensor::Sensor *magnetic_flux_density_x);
   void set_magnetic_flux_density_y(sensor::Sensor *magnetic_flux_density_y);
@@ -68,6 +70,8 @@ class WitMotion : public Component, public esphome::ble_client::BLEClientNode {
   sensor::Sensor *roll_angle_{nullptr};
   sensor::Sensor *pitch_angle_{nullptr};
   sensor::Sensor *yaw_angle_{nullptr};
+  sensor::Sensor *battery_level_{nullptr};
+  sensor::Sensor *battery_voltage_{nullptr};
   sensor::Sensor *magnetic_flux_density_{nullptr};
   sensor::Sensor *magnetic_flux_density_x_{nullptr};
   sensor::Sensor *magnetic_flux_density_y_{nullptr};
@@ -97,8 +101,9 @@ class WitMotion : public Component, public esphome::ble_client::BLEClientNode {
 
   void extract_data_and_dispatch(WitMotionData const *data);
   void dispatch_acceleration();
-  void dispatch_angular_velocity();
   void dispatch_angle();
+  void dispatch_angular_velocity();
+  void dispatch_battery();
   void dispatch_magnetic_flux_density();
   void dispatch_quaternion();
   void dispatch_temperature();
@@ -120,6 +125,7 @@ class WitMotion : public Component, public esphome::ble_client::BLEClientNode {
   float q2_{0.0};
   float q3_{0.0};
   float temp_{0.0};
+  float battery_volts_{0.0};
 };
 
 }  // namespace witmotion

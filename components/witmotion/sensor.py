@@ -6,13 +6,19 @@ from esphome.const import (
     CONF_ACCELERATION_X,
     CONF_ACCELERATION_Y,
     CONF_ACCELERATION_Z,
+    CONF_BATTERY_LEVEL,
+    CONF_BATTERY_VOLTAGE,
     CONF_ID,
     CONF_TEMPERATURE,
+    DEVICE_CLASS_BATTERY,
     DEVICE_CLASS_TEMPERATURE,
+    DEVICE_CLASS_VOLTAGE,
+    ENTITY_CATEGORY_DIAGNOSTIC,
     ICON_ACCELERATION,
     ICON_ACCELERATION_X,
     ICON_ACCELERATION_Y,
     ICON_ACCELERATION_Z,
+    ICON_BATTERY,
     ICON_GYROSCOPE_X,
     ICON_GYROSCOPE_Y,
     ICON_GYROSCOPE_Z,
@@ -24,6 +30,8 @@ from esphome.const import (
     UNIT_DEGREES,
     UNIT_G,
     UNIT_MICROTESLA,
+    UNIT_PERCENT,
+    UNIT_VOLT,
 )
 
 CODEOWNERS = ["@jpmv27"]
@@ -179,6 +187,22 @@ CONFIG_SCHEMA = (
                 device_class=DEVICE_CLASS_TEMPERATURE,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
+            cv.Optional(CONF_BATTERY_VOLTAGE): sensor.sensor_schema(
+                unit_of_measurement=UNIT_VOLT,
+                accuracy_decimals=2,
+                icon=ICON_BATTERY,
+                device_class=DEVICE_CLASS_VOLTAGE,
+                state_class=STATE_CLASS_MEASUREMENT,
+                entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+            ),
+            cv.Optional(CONF_BATTERY_LEVEL): sensor.sensor_schema(
+                unit_of_measurement=UNIT_PERCENT,
+                accuracy_decimals=0,
+                icon=ICON_BATTERY,
+                device_class=DEVICE_CLASS_BATTERY,
+                state_class=STATE_CLASS_MEASUREMENT,
+                entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+            ),
             cv.Optional(CONF_UPDATE_RATE, default="0.2 Hz"): cv.enum(UPDATE_RATES, upper=False),
         }
     )
@@ -212,6 +236,14 @@ async def to_code(config):
     if CONF_TEMPERATURE in config:
         sens = await sensor.new_sensor(config[CONF_TEMPERATURE])
         cg.add(var.set_temperature(sens))
+
+    if CONF_BATTERY_VOLTAGE in config:
+        sens = await sensor.new_sensor(config[CONF_BATTERY_VOLTAGE])
+        cg.add(var.set_battery_voltage(sens))
+
+    if CONF_BATTERY_LEVEL in config:
+        sens = await sensor.new_sensor(config[CONF_BATTERY_LEVEL])
+        cg.add(var.set_battery_level(sens))
 
     if CONF_UPDATE_RATE in config:
         cg.add(var.set_update_rate(config[CONF_UPDATE_RATE]))

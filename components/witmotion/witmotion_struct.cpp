@@ -50,6 +50,11 @@ void TemperatureOutput::decode(float *temperature) const {
   *temperature = combine_low_high(TL, TH) / 100.0;
 }
 
+void BatteryVoltageOutput::decode(float *voltage) const {
+  // Output in Volts
+  *voltage = combine_low_high(VL, VH) / 100.0;
+}
+
 void VersionOutput::decode(uint16_t *version) const {
   *version = combine_low_high(VersionL, VersionH);
 }
@@ -68,6 +73,35 @@ void SetRateCommand::compose(RateArg rate) {
   cmd = SET_RATE;
   rateL = rate;
   rateH = 0x00;
+}
+
+float BatteryVoltageToLevel(float voltage)
+{
+  // Conversion table provided by support@wit-motion.com
+  static struct entry { float voltage; float level; } const table[] =
+    { { 3.40,   5.0 },
+      { 3.50,  10.0 },
+      { 3.68,  15.0 },
+      { 3.70,  20.0 },
+      { 3.73,  30.0 },
+      { 3.77,  40.0 },
+      { 3.79,  50.0 },
+      { 3.82,  60.0 },
+      { 3.87,  75.0 },
+      { 3.93,  90.0 },
+      { 3.97, 100.0 } }; // > 3.96 => >= 3.97
+
+  float result = 0.0;
+
+  for (int i = 0; i < sizeof(table)/sizeof(entry); i++) {
+    if (voltage >= table[i].voltage ) {
+      result = table[i].level;
+    } else {
+      break;
+    }
+  }
+
+  return result;
 }
 
 }  // namespace witmotion

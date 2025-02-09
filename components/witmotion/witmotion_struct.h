@@ -59,7 +59,8 @@ enum RegisterNumber : uint8_t {
   Q0	    = 0x51,
   Q1	    = 0x52,
   Q2	    = 0x53,
-  Q3	    = 0x54
+  Q3	    = 0x54,
+  BATTERY   = 0x64, // Battery voltage in 1/100 V, per support@wit-motion.com
 };
 
 //
@@ -165,6 +166,17 @@ struct TemperatureOutput {
   void decode(float *temperature) const;
 };
 
+struct BatteryVoltageOutput {
+  HeadingOctet    heading;    // 0x55
+  FlagOctet       flag;       // 0x71
+  RegisterNumber  RegL;       // 0x64
+  uint8_t         RegH;       // 0x00
+  uint8_t         VL;
+  uint8_t         VH;
+
+  void decode(float *voltage) const;
+};
+
 struct VersionOutput {
   HeadingOctet    heading;    // 0x55
   FlagOctet       flag;       // 0x71
@@ -184,6 +196,7 @@ union WitMotionData {
   MagneticFieldOutput     magnetic_field;
   QuaternionOutput        quaternion;
   TemperatureOutput       temperature;
+  BatteryVoltageOutput    battery;
   VersionOutput           version;
 };
 
@@ -280,6 +293,12 @@ union WitMotionCommand {
   SetRateCommand      set_rate;
   ReadRegisterCommand read_register;
 };
+
+//
+// Utility functions
+//
+
+float BatteryVoltageToLevel(float voltage);
 
 }  // namespace witmotion
 }  // namespace esphome
