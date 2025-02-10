@@ -35,10 +35,10 @@ enum RegisterNumber : uint8_t {
   D2MODE	= 0x10,
   D3MODE	= 0x11,
   VERSION	= 0x2e,
-  YYMM		= 0x30,
-  DDHH		= 0x31,
-  MMSS		= 0x32,
-  MS	   	= 0x33,
+  YYMM		= 0x30, // YYMM[15:8] = month, YYMM[7:0] = year
+  DDHH		= 0x31, // DDHH[15:8] = hour, DDHH[7:0] = day
+  MMSS		= 0x32, // MMSS[15:8] = seconds, MMSS[7:0] = minute
+  MS	   	= 0x33, // MS[15:0] = milliseconds
   AX	   	= 0x34,
   AY	   	= 0x35,
   AZ	   	= 0x36,
@@ -72,6 +72,7 @@ enum HeadingOctet : uint8_t {
 };
 
 enum FlagOctet : uint8_t {
+  DATE_TIME_DATA        = 0x5f,
   DEFAULT_DATA          = 0x61,
   SINGLE_RETURN_DATA    = 0x71
 };
@@ -188,6 +189,22 @@ struct VersionOutput {
   void decode(uint16_t *version) const;
 };
 
+// From support@wit-motion.com
+// Read register YYMM (0x30)
+struct DateTimeOutput {
+  HeadingOctet    heading;    // 0x55
+  FlagOctet       flag;       // 0x5f
+  uint8_t         year;
+  uint8_t         month;
+  uint8_t         day;
+  uint8_t         hour;
+  uint8_t         minute;
+  uint8_t         seconds;
+  uint8_t         milliL;
+  uint8_t         milliH;
+  uint8_t         sum;
+};
+
 union WitMotionData {
   RawData                 raw;
   PacketHeader            header;
@@ -198,6 +215,7 @@ union WitMotionData {
   TemperatureOutput       temperature;
   BatteryVoltageOutput    battery;
   VersionOutput           version;
+  DateTimeOutput          date_time;
 };
 
 //
@@ -208,7 +226,11 @@ enum CommandCode : uint8_t {
   SAVE_SETTINGS   = 0x00,
   CALIBRATION     = 0x01,
   SET_RATE        = 0x03,
-  READ_REGISTER   = 0x27
+  READ_REGISTER   = 0x27,
+  SET_YYMM        = 0x30,
+  SET_DDHH        = 0x31,
+  SET_MMSS        = 0x32,
+  SET_MS          = 0x33
 };
 
 enum SaveArg : uint8_t {
@@ -285,13 +307,53 @@ struct ReadRegisterCommand {
   void compose(RegisterNumber reg);
 };
 
+// From support@wit-motion.com
+struct SetYearMonthCommand {
+  uint8_t         h1;         // 0xff
+  uint8_t         h2;         // 0xaa
+  CommandCode     cmd;        // 0x30
+  uint8_t         year;
+  uint8_t         month;
+};
+
+// From support@wit-motion.com
+struct SetDayHourCommand {
+  uint8_t         h1;         // 0xff
+  uint8_t         h2;         // 0xaa
+  CommandCode     cmd;        // 0x31
+  uint8_t         day;
+  uint8_t         hour;
+};
+
+// From support@wit-motion.com
+struct SetMinuteSecondsCommand {
+  uint8_t         h1;         // 0xff
+  uint8_t         h2;         // 0xaa
+  CommandCode     cmd;        // 0x32
+  uint8_t         minute;
+  uint8_t         seconds;
+};
+
+// From support@wit-motion.com
+struct SetMillisecondsCommand {
+  uint8_t         h1;         // 0xff
+  uint8_t         h2;         // 0xaa
+  CommandCode     cmd;        // 0x33
+  uint8_t         milliL;
+  uint8_t         milliH;
+};
+
 union WitMotionCommand {
-  RawCommand          raw;
-  GenericCommand      generic;
-  SaveSettingsCommand cwsave_settingsss;
-  CalibrationCommand  calibration;
-  SetRateCommand      set_rate;
-  ReadRegisterCommand read_register;
+  RawCommand                raw;
+  GenericCommand            generic;
+  SaveSettingsCommand       cwsave_settingsss;
+  CalibrationCommand        calibration;
+  SetRateCommand            set_rate;
+  ReadRegisterCommand       read_register;
+  SetYearMonthCommand       set_year_month;
+  SetDayHourCommand         set_day_hour;
+  SetMinuteSecondsCommand   set_minute_seconds;
+  SetMillisecondsCommand    set_milliseconds;
 };
 
 //
