@@ -1,6 +1,6 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import ble_client, sensor
+from esphome.components import sensor
 from esphome.const import (
     CONF_ACCELERATION,
     CONF_ACCELERATION_X,
@@ -8,7 +8,6 @@ from esphome.const import (
     CONF_ACCELERATION_Z,
     CONF_BATTERY_LEVEL,
     CONF_BATTERY_VOLTAGE,
-    CONF_ID,
     CONF_TEMPERATURE,
     DEVICE_CLASS_BATTERY,
     DEVICE_CLASS_TEMPERATURE,
@@ -33,9 +32,9 @@ from esphome.const import (
     UNIT_PERCENT,
     UNIT_VOLT,
 )
+from . import CONF_WITMOTION_ID, WitMotion
 
-CODEOWNERS = ["@jpmv27"]
-DEPENDENCIES = ["ble_client"]
+DEPENDENCIES = ["witmotion"]
 
 CONF_ANGULAR_VELOCITY = "angular_velocity"
 CONF_ANGULAR_VELOCITY_X = "angular_velocity_x"
@@ -51,30 +50,13 @@ CONF_QUATERNION_1 = "quaternion_1"
 CONF_QUATERNION_2 = "quaternion_2"
 CONF_QUATERNION_3 = "quaternion_3"
 CONF_ROLL_ANGLE = "roll_angle"
-CONF_UPDATE_RATE = "update_rate"
 CONF_YAW_ANGLE = "yaw_angle"
 
-witmotion_ns = cg.esphome_ns.namespace("witmotion")
-WitMotion = witmotion_ns.class_("WitMotion", cg.Component, ble_client.BLEClientNode)
-
-WitMotionUpdateRate = witmotion_ns.enum("RateArg")
-UPDATE_RATES = {
-    "0.2 Hz": WitMotionUpdateRate.RATE_0_2HZ,
-    "0.5 Hz": WitMotionUpdateRate.RATE_0_5HZ,
-    "1 Hz":   WitMotionUpdateRate.RATE_1HZ,
-    "2 Hz":   WitMotionUpdateRate.RATE_2HZ,
-    "5 Hz":   WitMotionUpdateRate.RATE_5HZ,
-    "10 Hz":  WitMotionUpdateRate.RATE_10HZ,
-    "20 Hz":  WitMotionUpdateRate.RATE_20HZ,
-    "50 Hz":  WitMotionUpdateRate.RATE_50HZ,
-    "100 Hz": WitMotionUpdateRate.RATE_100HZ,
-    "200 Hz": WitMotionUpdateRate.RATE_200HZ,
-}
 
 CONFIG_SCHEMA = (
     cv.Schema(
         {
-            cv.GenerateID(): cv.declare_id(WitMotion),
+            cv.GenerateID(CONF_WITMOTION_ID): cv.use_id(WitMotion),
             cv.Optional(CONF_ACCELERATION): sensor.sensor_schema(
                 unit_of_measurement=UNIT_G,
                 accuracy_decimals=3,
@@ -203,18 +185,12 @@ CONFIG_SCHEMA = (
                 state_class=STATE_CLASS_MEASUREMENT,
                 entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
             ),
-            cv.Optional(CONF_UPDATE_RATE, default="0.2 Hz"): cv.enum(UPDATE_RATES, upper=False),
         }
     )
-    .extend(ble_client.BLE_CLIENT_SCHEMA)
-    .extend(cv.COMPONENT_SCHEMA)
 )
 
 async def to_code(config):
-    var = cg.new_Pvariable(config[CONF_ID])
-    await cg.register_component(var, config)
-    await ble_client.register_ble_node(var, config)
-
+    var = await cg.get_variable(config[CONF_WITMOTION_ID])
     for t in ["acceleration", "angular_velocity", "magnetic_flux_density"]:
         for d in ["", "_x", "_y", "_z"]:
             key = f"{t}{d}"
@@ -244,6 +220,3 @@ async def to_code(config):
     if CONF_BATTERY_LEVEL in config:
         sens = await sensor.new_sensor(config[CONF_BATTERY_LEVEL])
         cg.add(var.set_battery_level(sens))
-
-    if CONF_UPDATE_RATE in config:
-        cg.add(var.set_update_rate(config[CONF_UPDATE_RATE]))
