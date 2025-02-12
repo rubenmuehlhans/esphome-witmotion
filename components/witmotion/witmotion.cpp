@@ -58,6 +58,10 @@ void WitMotion::setup() {
   if (sizeof(WitMotionCommand) != RAW_COMMAND_BUFFER_SIZE) {
     ESP_LOGE(TAG, "Data structure error: sizeof(WitMotionCommand) != RAW_COMMAND_BUFFER_SIZE");
   }
+
+#ifdef USE_TIME
+  this->setup_time();
+#endif
 }
 
 /* BLEClient overrides */
@@ -400,6 +404,59 @@ void WitMotion::read_one_time_data(RegisterNumber reg) {
     ESP_LOGE(TAG, "esp_ble_gattc_write_char failed, handle=%d, status=%d", this->command_handle_, status);
   }
 }
+
+#ifdef USE_TIME
+void WitMotion::set_clock() {
+  if (!this->command_handle_) {
+    ESP_LOGD(TAG, "not connected yet: not syncing clock.");
+    return;
+  }
+
+  ESPTime now = this->time_id_->now();
+  if (!now.is_valid()) {
+    ESP_LOGD(TAG, "time is not synchronized yet: not syncing clock.");
+    return;
+  }
+
+  WitMotionCommand cmd = {0};
+  cmd.set_year_month.compose(now);
+  uint8_t status = esp_ble_gattc_write_char(this->parent_->get_gattc_if(), this->parent_->get_conn_id(),
+                                            this->command_handle_, sizeof(cmd), cmd.raw.ptr(),
+                                            ESP_GATT_WRITE_TYPE_NO_RSP, ESP_GATT_AUTH_REQ_NONE);
+  if (status) {
+    ESP_LOGE(TAG, "esp_ble_gattc_write_char failed, handle=%d, status=%d", this->command_handle_, status);
+  }
+  cmd.set_day_hour.compose(now);
+  status = esp_ble_gattc_write_char(this->parent_->get_gattc_if(), this->parent_->get_conn_id(),
+                                    this->command_handle_, sizeof(cmd), cmd.raw.ptr(),
+                                    ESP_GATT_WRITE_TYPE_NO_RSP, ESP_GATT_AUTH_REQ_NONE);
+  if (status) {
+    ESP_LOGE(TAG, "esp_ble_gattc_write_char failed, handle=%d, status=%d", this->command_handle_, status);
+  }
+  cmd.set_minute_seconds.compose(now);
+  status = esp_ble_gattc_write_char(this->parent_->get_gattc_if(), this->parent_->get_conn_id(),
+                                    this->command_handle_, sizeof(cmd), cmd.raw.ptr(),
+                                    ESP_GATT_WRITE_TYPE_NO_RSP, ESP_GATT_AUTH_REQ_NONE);
+  if (status) {
+    ESP_LOGE(TAG, "esp_ble_gattc_write_char failed, handle=%d, status=%d", this->command_handle_, status);
+  }
+  cmd.set_milliseconds.compose(now);
+  status = esp_ble_gattc_write_char(this->parent_->get_gattc_if(), this->parent_->get_conn_id(),
+                                    this->command_handle_, sizeof(cmd), cmd.raw.ptr(),
+                                    ESP_GATT_WRITE_TYPE_NO_RSP, ESP_GATT_AUTH_REQ_NONE);
+  if (status) {
+    ESP_LOGE(TAG, "esp_ble_gattc_write_char failed, handle=%d, status=%d", this->command_handle_, status);
+  }
+}
+
+void WitMotion::setup_time() {
+  if (this->time_id_ != nullptr) {
+    this->time_id_->add_on_time_sync_callback([this] { this->set_clock(); });
+  } else {
+    ESP_LOGI(TAG, "`time_id` is not configured: will not sync WitMotion clock.");
+  }
+}
+#endif
 
 void WitMotion::start_reading_extra_data() {
   this->extra_data_index_ = 0;

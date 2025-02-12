@@ -6,8 +6,12 @@
 #include "witmotion_struct.h"
 
 #include "esphome/core/component.h"
+#include "esphome/core/time.h"
 #include "esphome/components/ble_client/ble_client.h"
 #include "esphome/components/sensor/sensor.h"
+#ifdef USE_TIME
+#include "esphome/components/time/real_time_clock.h"
+#endif
 
 namespace esphome {
 namespace witmotion {
@@ -32,6 +36,9 @@ class WitMotion : public Component, public esphome::ble_client::BLEClientNode {
   /* Our interface */
 
   void set_update_rate(RateArg rate);
+#ifdef USE_TIME
+  void set_time_id(time::RealTimeClock *time_id) { this->time_id_ = time_id; }
+#endif
 
   void set_acceleration(sensor::Sensor *acceleration) { acceleration_ = acceleration; }
   void set_acceleration_x(sensor::Sensor *acceleration_x) { acceleration_x_ = acceleration_x; }
@@ -125,6 +132,12 @@ class WitMotion : public Component, public esphome::ble_client::BLEClientNode {
   float q3_{0.0};
   float temp_{0.0};
   float battery_volts_{0.0};
+
+#ifdef USE_TIME
+  void set_clock();
+  void setup_time();
+  time::RealTimeClock *time_id_{nullptr};
+#endif
 };
 
 }  // namespace witmotion

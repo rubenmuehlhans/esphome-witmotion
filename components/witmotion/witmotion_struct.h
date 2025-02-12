@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#include "esphome/core/time.h"
+
 namespace esphome {
 namespace witmotion {
 
@@ -72,7 +74,6 @@ enum HeadingOctet : uint8_t {
 };
 
 enum FlagOctet : uint8_t {
-  DATE_TIME_DATA        = 0x5f,
   DEFAULT_DATA          = 0x61,
   SINGLE_RETURN_DATA    = 0x71
 };
@@ -189,11 +190,12 @@ struct VersionOutput {
   void decode(uint16_t *version) const;
 };
 
-// From support@wit-motion.com
 // Read register YYMM (0x30)
 struct DateTimeOutput {
   HeadingOctet    heading;    // 0x55
-  FlagOctet       flag;       // 0x5f
+  FlagOctet       flag;       // 0x71
+  RegisterNumber  RegL;       // 0x30
+  uint8_t         RegH;       // 0x00
   uint8_t         year;
   uint8_t         month;
   uint8_t         day;
@@ -202,7 +204,7 @@ struct DateTimeOutput {
   uint8_t         seconds;
   uint8_t         milliL;
   uint8_t         milliH;
-  uint8_t         sum;
+
 };
 
 union WitMotionData {
@@ -314,6 +316,8 @@ struct SetYearMonthCommand {
   CommandCode     cmd;        // 0x30
   uint8_t         year;
   uint8_t         month;
+
+  void compose(ESPTime const& date_time);
 };
 
 // From support@wit-motion.com
@@ -323,6 +327,8 @@ struct SetDayHourCommand {
   CommandCode     cmd;        // 0x31
   uint8_t         day;
   uint8_t         hour;
+
+  void compose(ESPTime const& date_time);
 };
 
 // From support@wit-motion.com
@@ -332,6 +338,8 @@ struct SetMinuteSecondsCommand {
   CommandCode     cmd;        // 0x32
   uint8_t         minute;
   uint8_t         seconds;
+
+  void compose(ESPTime const& date_time);
 };
 
 // From support@wit-motion.com
@@ -341,6 +349,8 @@ struct SetMillisecondsCommand {
   CommandCode     cmd;        // 0x33
   uint8_t         milliL;
   uint8_t         milliH;
+
+  void compose(ESPTime const& date_time);
 };
 
 union WitMotionCommand {

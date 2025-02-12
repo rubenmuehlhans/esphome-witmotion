@@ -75,6 +75,38 @@ void SetRateCommand::compose(RateArg rate) {
   rateH = 0x00;
 }
 
+void SetYearMonthCommand::compose(ESPTime const& date_time) {
+  h1 = 0xff;
+  h2 = 0xaa;
+  cmd = SET_YYMM;
+  year = date_time.year - 1900;
+  month = date_time.month;
+}
+
+void SetDayHourCommand::compose(ESPTime const& date_time) {
+  h1 = 0xff;
+  h2 = 0xaa;
+  cmd = SET_DDHH;
+  day = date_time.day_of_month;
+  hour = date_time.hour;
+}
+
+void SetMinuteSecondsCommand::compose(ESPTime const& date_time) {
+  h1 = 0xff;
+  h2 = 0xaa;
+  cmd = SET_MMSS;
+  minute = date_time.minute;
+  seconds = date_time.second;
+}
+
+void SetMillisecondsCommand::compose(ESPTime const& date_time) {
+  h1 = 0xff;
+  h2 = 0xaa;
+  cmd = SET_MS;
+  milliL = 0;
+  milliH = 0;
+}
+
 float BatteryVoltageToLevel(float voltage)
 {
   // Conversion table provided by support@wit-motion.com

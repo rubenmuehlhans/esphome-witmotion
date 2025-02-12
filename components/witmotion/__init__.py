@@ -1,8 +1,9 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import ble_client
+from esphome.components import ble_client, time
 from esphome.const import (
     CONF_ID,
+    CONF_TIME_ID,
 )
 
 CODEOWNERS = ["@jpmv27"]
@@ -35,6 +36,7 @@ CONFIG_SCHEMA = (
         {
             cv.GenerateID(): cv.declare_id(WitMotion),
             cv.Optional(CONF_UPDATE_RATE, default="0.2 Hz"): cv.enum(UPDATE_RATES, upper=False),
+            cv.Optional(CONF_TIME_ID): cv.use_id(time.RealTimeClock),
         }
     )
     .extend(cv.COMPONENT_SCHEMA)
@@ -48,3 +50,7 @@ async def to_code(config):
 
     if CONF_UPDATE_RATE in config:
         cg.add(var.set_update_rate(config[CONF_UPDATE_RATE]))
+
+    if time_id := config.get(CONF_TIME_ID):
+        time_ = await cg.get_variable(time_id)
+        cg.add(var.set_time_id(time_))
