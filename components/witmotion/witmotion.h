@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "witmotion_automation.h"
 #include "witmotion_struct.h"
 
 #include "esphome/core/component.h"
@@ -36,9 +37,12 @@ class WitMotion : public Component, public esphome::ble_client::BLEClientNode {
   /* Our interface */
 
   void set_update_rate(RateArg rate);
+
 #ifdef USE_TIME
   void set_time_id(time::RealTimeClock *time_id) { this->time_id_ = time_id; }
 #endif
+
+  void register_onupdate_trigger(UpdateTrigger *trig) { triggers_onupdate_.push_back(trig); }
 
   void set_acceleration(sensor::Sensor *acceleration) { acceleration_ = acceleration; }
   void set_acceleration_x(sensor::Sensor *acceleration_x) { acceleration_x_ = acceleration_x; }
@@ -66,6 +70,10 @@ class WitMotion : public Component, public esphome::ble_client::BLEClientNode {
  protected:
 
   RateArg update_rate_{RATE_0_2HZ};
+
+  void process_onupdate_triggers();
+  std::vector<UpdateTrigger *> triggers_onupdate_;
+
   sensor::Sensor *acceleration_{nullptr};
   sensor::Sensor *acceleration_x_{nullptr};
   sensor::Sensor *acceleration_y_{nullptr};

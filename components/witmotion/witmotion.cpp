@@ -380,6 +380,7 @@ void WitMotion::process_notification(esp_ble_gattc_cb_param_t *param) {
       this->extract_data_and_dispatch(data);
 
       if (data->header.flag == DEFAULT_DATA) {
+        this->process_onupdate_triggers();
         this->start_reading_extra_data();
       } else {
         this->continue_reading_extra_data();
@@ -390,6 +391,12 @@ void WitMotion::process_notification(esp_ble_gattc_cb_param_t *param) {
 
     value += sizeof(WitMotionData);
     value_len -= sizeof(WitMotionData);
+  }
+}
+
+void WitMotion::process_onupdate_triggers() {
+  for (auto *trigger : this->triggers_onupdate_) {
+    trigger->process();
   }
 }
 
