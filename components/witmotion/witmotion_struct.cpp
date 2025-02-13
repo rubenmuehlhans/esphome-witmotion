@@ -1,5 +1,7 @@
 #ifdef USE_ESP32
 
+#include <cstdio>
+
 #include "witmotion_struct.h"
 
 namespace esphome {
@@ -57,6 +59,15 @@ void BatteryVoltageOutput::decode(float *voltage) const {
 
 void VersionOutput::decode(uint16_t *version) const {
   *version = combine_low_high(VersionL, VersionH);
+}
+
+std::string DateTimeOutput::decode() const {
+  char buf[] = "0000-00-00T00:00:00.000";
+
+  std::snprintf(buf, sizeof(buf), "%4d-%02d-%02dT%02d:%02d:%02d.%03d", year + 1900, month, day,
+                hour, minute, seconds, combine_low_high(milliL, milliH));
+
+  return std::string(buf);
 }
 
 void ReadRegisterCommand::compose(RegisterNumber reg) {

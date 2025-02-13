@@ -2,6 +2,7 @@
 #ifdef USE_ESP32
 
 #include <cstdint>
+#include <string>
 
 #include "esphome/core/time.h"
 
@@ -191,6 +192,8 @@ struct VersionOutput {
 };
 
 // Read register YYMM (0x30)
+// Using the WitMotion clock is not that useful because
+// it drifts terribly: 0.7% or 7000 ppm on my sample.
 struct DateTimeOutput {
   HeadingOctet    heading;    // 0x55
   FlagOctet       flag;       // 0x71
@@ -205,6 +208,7 @@ struct DateTimeOutput {
   uint8_t         milliL;
   uint8_t         milliH;
 
+  std::string decode() const;
 };
 
 union WitMotionData {
