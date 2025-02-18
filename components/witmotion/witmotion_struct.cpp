@@ -28,9 +28,9 @@ void DefaultData::decode_angular_velocity(float *wx, float *wy, float *wz) const
 
 void DefaultData::decode_angle(float *roll, float *pitch, float *yaw) const {
   // Output in degrees
-  *roll =  combine_low_high(RollL, RollH)   * 2000.0 / 32768.0;
-  *pitch = combine_low_high(PitchL, PitchH) * 2000.0 / 32768.0;
-  *yaw =   combine_low_high(YawL, YawH)     * 2000.0 / 32768.0;
+  *roll =  combine_low_high(RollL, RollH)   * 180.0 / 32768.0;
+  *pitch = combine_low_high(PitchL, PitchH) * 180.0 / 32768.0;
+  *yaw =   combine_low_high(YawL, YawH)     * 180.0 / 32768.0;
 }
 
 void MagneticFieldOutput::decode(float *hx, float *hy, float *hz) const {
