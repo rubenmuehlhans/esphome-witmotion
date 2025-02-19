@@ -236,7 +236,8 @@ enum CommandCode : uint8_t {
   SET_YYMM        = 0x30,
   SET_DDHH        = 0x31,
   SET_MMSS        = 0x32,
-  SET_MS          = 0x33
+  SET_MS          = 0x33,
+  ENTER_DFU_MODE  = 0x65
 };
 
 enum SaveArg : uint8_t {
@@ -357,6 +358,15 @@ struct SetMillisecondsCommand {
   void compose(ESPTime const& date_time);
 };
 
+// From support@wit-motion.com
+struct EnterDfuModeCommand {
+  uint8_t         h1;         // 0xff
+  uint8_t         h2;         // 0xaa
+  CommandCode     cmd;        // 0x65
+  uint8_t         fill1;      // 0x00
+  uint8_t         fill2;      // 0x00
+};
+
 union WitMotionCommand {
   RawCommand                raw;
   GenericCommand            generic;
@@ -368,6 +378,7 @@ union WitMotionCommand {
   SetDayHourCommand         set_day_hour;
   SetMinuteSecondsCommand   set_minute_seconds;
   SetMillisecondsCommand    set_milliseconds;
+  EnterDfuModeCommand       enter_dfu_mode;
 };
 
 //
