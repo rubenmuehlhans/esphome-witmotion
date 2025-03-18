@@ -45,6 +45,7 @@ CONF_MAGNETIC_FLUX_DENSITY_X = "magnetic_flux_density_x"
 CONF_MAGNETIC_FLUX_DENSITY_Y = "magnetic_flux_density_y"
 CONF_MAGNETIC_FLUX_DENSITY_Z = "magnetic_flux_density_z"
 CONF_PITCH_ANGLE = "pitch_angle"
+CONF_QUATERNION_NORM = "quaternion_norm"
 CONF_QUATERNION_0 = "quaternion_0"
 CONF_QUATERNION_1 = "quaternion_1"
 CONF_QUATERNION_2 = "quaternion_2"
@@ -146,6 +147,10 @@ CONFIG_SCHEMA = (
                 icon=ICON_MAGNET,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
+            cv.Optional(CONF_QUATERNION_NORM): sensor.sensor_schema(
+                accuracy_decimals=5,
+                state_class=STATE_CLASS_MEASUREMENT,
+            ),
             cv.Optional(CONF_QUATERNION_0): sensor.sensor_schema(
                 accuracy_decimals=5,
                 state_class=STATE_CLASS_MEASUREMENT,
@@ -198,7 +203,7 @@ async def to_code(config):
                 sens = await sensor.new_sensor(config[key])
                 cg.add(getattr(var, f"set_{key}")(sens))
 
-    for key in ["roll_angle", "pitch_angle", "yaw_angle"]:
+    for key in ["roll_angle", "pitch_angle", "yaw_angle", "quaternion_norm"]:
         if key in config:
             sens = await sensor.new_sensor(config[key])
             cg.add(getattr(var, f"set_{key}")(sens))

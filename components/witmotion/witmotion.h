@@ -61,6 +61,7 @@ class WitMotion : public Component, public esphome::ble_client::BLEClientNode {
   void set_magnetic_flux_density_x(sensor::Sensor *magnetic_flux_density_x);
   void set_magnetic_flux_density_y(sensor::Sensor *magnetic_flux_density_y);
   void set_magnetic_flux_density_z(sensor::Sensor *magnetic_flux_density_z);
+  void set_quaternion_norm(sensor::Sensor *quaternion_norm);
   void set_quaternion_0(sensor::Sensor *quaternion_0);
   void set_quaternion_1(sensor::Sensor *quaternion_1);
   void set_quaternion_2(sensor::Sensor *quaternion_2);
@@ -91,6 +92,7 @@ class WitMotion : public Component, public esphome::ble_client::BLEClientNode {
   sensor::Sensor *magnetic_flux_density_x_{nullptr};
   sensor::Sensor *magnetic_flux_density_y_{nullptr};
   sensor::Sensor *magnetic_flux_density_z_{nullptr};
+  sensor::Sensor *quaternion_norm_{nullptr};
   sensor::Sensor *quaternion_0_{nullptr};
   sensor::Sensor *quaternion_1_{nullptr};
   sensor::Sensor *quaternion_2_{nullptr};

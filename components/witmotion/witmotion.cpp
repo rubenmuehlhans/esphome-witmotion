@@ -27,19 +27,20 @@ void WitMotion::dump_config() {
   LOG_SENSOR("  ", "Acceleration X", this->acceleration_x_);
   LOG_SENSOR("  ", "Acceleration Y", this->acceleration_y_);
   LOG_SENSOR("  ", "Acceleration Z", this->acceleration_z_);
-  LOG_SENSOR("  ", "Angular_velocity", this->angular_velocity_);
-  LOG_SENSOR("  ", "Angular_velocity X", this->angular_velocity_x_);
-  LOG_SENSOR("  ", "Angular_velocity Y", this->angular_velocity_y_);
-  LOG_SENSOR("  ", "Angular_velocity Z", this->angular_velocity_z_);
-  LOG_SENSOR("  ", "Roll_angle", this->roll_angle_);
-  LOG_SENSOR("  ", "Pitch_angle", this->pitch_angle_);
-  LOG_SENSOR("  ", "Yaw_angle", this->yaw_angle_);
-  LOG_SENSOR("  ", "Battery_level", this->battery_level_);
-  LOG_SENSOR("  ", "Battery_voltage", this->battery_voltage_);
-  LOG_SENSOR("  ", "Magnetic_flux_density", this->magnetic_flux_density_);
-  LOG_SENSOR("  ", "Magnetic_flux_density X", this->magnetic_flux_density_x_);
-  LOG_SENSOR("  ", "Magnetic_flux_density Y", this->magnetic_flux_density_y_);
-  LOG_SENSOR("  ", "Magnetic_flux_density Z", this->magnetic_flux_density_z_);
+  LOG_SENSOR("  ", "Angular velocity", this->angular_velocity_);
+  LOG_SENSOR("  ", "Angular velocity X", this->angular_velocity_x_);
+  LOG_SENSOR("  ", "Angular velocity Y", this->angular_velocity_y_);
+  LOG_SENSOR("  ", "Angular velocity Z", this->angular_velocity_z_);
+  LOG_SENSOR("  ", "Roll angle", this->roll_angle_);
+  LOG_SENSOR("  ", "Pitch angle", this->pitch_angle_);
+  LOG_SENSOR("  ", "Yaw angle", this->yaw_angle_);
+  LOG_SENSOR("  ", "Battery level", this->battery_level_);
+  LOG_SENSOR("  ", "Battery voltage", this->battery_voltage_);
+  LOG_SENSOR("  ", "Magnetic flux density", this->magnetic_flux_density_);
+  LOG_SENSOR("  ", "Magnetic flux density X", this->magnetic_flux_density_x_);
+  LOG_SENSOR("  ", "Magnetic flux density Y", this->magnetic_flux_density_y_);
+  LOG_SENSOR("  ", "Magnetic flux density Z", this->magnetic_flux_density_z_);
+  LOG_SENSOR("  ", "Quaternion norm", this->quaternion_norm_);
   LOG_SENSOR("  ", "Quaternion 0", this->quaternion_0_);
   LOG_SENSOR("  ", "Quaternion 1", this->quaternion_1_);
   LOG_SENSOR("  ", "Quaternion 2", this->quaternion_2_);
@@ -129,6 +130,11 @@ void WitMotion::set_magnetic_flux_density_y(sensor::Sensor *magnetic_flux_densit
 void WitMotion::set_magnetic_flux_density_z(sensor::Sensor *magnetic_flux_density_z) {
   this->magnetic_flux_density_z_ = magnetic_flux_density_z;
   this->add_extra_data(HX);
+}
+
+void WitMotion::set_quaternion_norm(sensor::Sensor *quaternion_norm) {
+  this->quaternion_norm_ = quaternion_norm;
+  this->add_extra_data(Q0);
 }
 
 void WitMotion::set_quaternion_0(sensor::Sensor *quaternion_0) {
@@ -292,6 +298,12 @@ void WitMotion::dispatch_quaternion() {
 
   if (this->quaternion_3_) {
     this->quaternion_3_->publish_state(this->q3_);
+  }
+
+  if (this->quaternion_norm_) {
+    float norm = sqrt(pow(double(this->q0_), 2.0) + pow(double(this->q1_), 2.0) +
+                      pow(double(this->q2_), 2.0) + pow(double(this->q3_), 2.0));
+    this->quaternion_norm_->publish_state(norm);
   }
 }
 
