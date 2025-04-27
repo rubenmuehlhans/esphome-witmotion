@@ -43,6 +43,7 @@ class WitMotion : public Component, public esphome::ble_client::BLEClientNode {
 #endif
 
   void register_onupdate_trigger(UpdateTrigger *trig) { triggers_onupdate_.push_back(trig); }
+  void set_trigger_every(int every) { trigger_every = every; }
 
   void set_acceleration(sensor::Sensor *acceleration) { acceleration_ = acceleration; }
   void set_acceleration_x(sensor::Sensor *acceleration_x) { acceleration_x_ = acceleration_x; }
@@ -74,6 +75,8 @@ class WitMotion : public Component, public esphome::ble_client::BLEClientNode {
 
   void process_onupdate_triggers();
   std::vector<UpdateTrigger *> triggers_onupdate_;
+  int trigger_every{1};
+  int trigger_countdown{1};
 
   sensor::Sensor *acceleration_{nullptr};
   sensor::Sensor *acceleration_x_{nullptr};

@@ -392,7 +392,10 @@ void WitMotion::process_notification(esp_ble_gattc_cb_param_t *param) {
       this->extract_data_and_dispatch(data);
 
       if (data->header.flag == DEFAULT_DATA) {
-        this->process_onupdate_triggers();
+        if (--this->trigger_countdown == 0) {
+          this->process_onupdate_triggers();
+          this->trigger_countdown = this->trigger_every;
+        }
         this->start_reading_extra_data();
       } else {
         this->continue_reading_extra_data();
